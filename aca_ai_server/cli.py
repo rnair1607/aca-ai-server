@@ -43,6 +43,7 @@ def cmd_food(a):
 
 
 def main():
+
     ap = argparse.ArgumentParser(prog="aca")
     sub = ap.add_subparsers(dest="cmd", required=True)
     f = sub.add_parser("food", help="identify food items + grams from photos")
