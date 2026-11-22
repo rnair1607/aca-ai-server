@@ -1,0 +1,7 @@
+.env
+*.env.local
+models/
+data/
+*.gguf
+__pycache__/
+.venv/
