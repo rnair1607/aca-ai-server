@@ -5,7 +5,8 @@ import json
 import time
 from datetime import datetime, timezone
 
-from . import config, food
+from . import food
+from . import config
 
 
 def _fmt(t: dict) -> str:

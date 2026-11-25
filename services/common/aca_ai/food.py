@@ -2,7 +2,8 @@
 
 from pathlib import Path
 
-from . import images, llm
+from . import images
+from . import llm
 
 SYSTEM = (
     "You are a nutrition assistant. Identify each food item in the photo and estimate its "
