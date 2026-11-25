@@ -5,3 +5,4 @@ data/
 *.gguf
 __pycache__/
 .venv/
+Food Test/
