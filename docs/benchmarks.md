@@ -87,3 +87,19 @@ $$ +5.0\% - 1.5\% + 0.4\% = \mathbf{+3.9\%} $$
 
 **Reasoning:**
 While Holding A had the highest percentage gain (+10%), it also had the highest weight (50%). Its contribution to the total portfolio was **+5.0%**, which was significantly larger than Holding C's contribution (+0.4%) and completely offset the drag from Holding B (-1.5%). Without Holding A, the portfolio would have lost value.
+
+### Quality (3 fixed prompts)
+
+IQ4_XS@16k and Q4_K_M@8k: equivalent quality; both correct on reasoning (+3.9%).
+Long-doc citations limited by truncated input (9k chars).
+
+### Decision
+
+Nightly investment model: **Qwen3.5-9B IQ4_XS, -ngl 99, f16 KV, no -fa, -c 16384**
+Reason: fastest decode (42.8 → 26.5 tok/s at 16k), fully on GPU, fits 16k, quality ≈ Q4_K_M.
+
+### Lessons (Turing / 1660 Ti)
+
+- Avoid -fa and quantized KV (q8_0): ~2× slower decode.
+- Offloading layers to CPU halves speed per ~4 layers; avoid.
+- Q4_K_M OOMs at 16k due to the compute buffer, not the KV cache.
