@@ -1,0 +1,2 @@
+[console_scripts]
+aca = aca_ai.cli:main

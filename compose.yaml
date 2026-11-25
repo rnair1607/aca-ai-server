@@ -6,15 +6,30 @@ x-defaults: &defaults
   networks: [ai]
 
 services:
-  hello:
+  llm:
     <<: *defaults
-    image: nginx:alpine
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    volumes:
+      - /srv/models:/models:ro
     ports:
-      - "127.0.0.1:8081:80"     # localhost only, never exposed to the LAN
+      - "127.0.0.1:8080:8080"
+    command: >
+      -m /models/qwen3.5-4b/Qwen3.5-4B-Q4_K_M.gguf
+      --mmproj /models/qwen3.5-4b/mmproj-F16.gguf
+      -ngl 99 -c 8192 --jinja
+      --host 0.0.0.0 --port 8080
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
+      start_period: 60s
       retries: 3
 
 networks:
