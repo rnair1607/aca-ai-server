@@ -103,3 +103,17 @@ Reason: fastest decode (42.8 → 26.5 tok/s at 16k), fully on GPU, fits 16k, qua
 - Avoid -fa and quantized KV (q8_0): ~2× slower decode.
 - Offloading layers to CPU halves speed per ~4 layers; avoid.
 - Q4_K_M OOMs at 16k due to the compute buffer, not the KV cache.
+
+## llama-swap (SCRUM-22)
+
+Image `ghcr.io/mostlygeek/llama-swap:v277-cuda-b12808`. Models: `qwen-4b-vl` (preloaded, no TTL), `qwen-9b` (TTL 120 s). One group, `swap: true`.
+
+| Request | Time | Notes |
+|---|---|---|
+| 4B loaded → request `qwen-9b` (swap) | 3.1 s | unload 4B + load 9B + 16 tokens |
+| 9B loaded → request `qwen-4b-vl` (swap) | 2.8 s | unload 9B + load 4B + 16 tokens |
+
+- **Caveat:** both runs were warm-cache. The GGUF files were probably still in the page cache (RAM), so the numbers exclude NVMe read time. A first load after reboot will be slower and has not been measured yet.
+- VRAM: never both models resident. After the 9B TTL, VRAM dropped to about 1 MiB.
+- 4B is **not** reloaded automatically when 9B unloads; it loads on the next request. The nightly job should send a final `qwen-4b-vl` request to restore it (SCRUM-31/43).
+- Both replies had empty `content` with the text in `reasoning_content` (`finish_reason: length` at `max_tokens` 16): hidden thinking is still on. Fix in D10 follow-up (`--reasoning-budget 0` or a no-think entry).
