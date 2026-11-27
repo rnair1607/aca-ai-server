@@ -6,18 +6,15 @@ x-defaults: &defaults
   networks: [ai]
 
 services:
-  llm:
+  llama-swap:
     <<: *defaults
-    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    image: ghcr.io/mostlygeek/llama-swap:v277-cuda-b12808
     volumes:
       - /srv/models:/models:ro
+      - ./services/llama-swap/config.yaml:/app/config.yaml:ro
+    command: ["-config", "/app/config.yaml", "-listen", "0.0.0.0:8080"]
     ports:
       - "127.0.0.1:8080:8080"
-    command: >
-      -m /models/qwen3.5-4b/Qwen3.5-4B-Q4_K_M.gguf
-      --mmproj /models/qwen3.5-4b/mmproj-F16.gguf
-      -ngl 99 -c 8192 --jinja
-      --host 0.0.0.0 --port 8080
     deploy:
       resources:
         reservations:
