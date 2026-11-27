@@ -1,0 +1,30 @@
+healthCheckTimeout: 120
+models:
+  qwen-4b-vl:
+    cmd: >
+      /app/llama-server --port ${PORT}
+      -m /models/qwen3.5-4b/Qwen3.5-4B-Q4_K_M.gguf --mmproj /models/qwen3.5-4b/mmproj-F16.gguf
+      -ngl 99 -c 8192 --jinja
+    proxy: http://127.0.0.1:${PORT}
+  qwen-9b:
+    cmd: >
+      /app/llama-server --port ${PORT}
+      -m /models/qwen3.5-9b/Qwen3.5-9B-IQ4_XS.gguf 
+      -ngl 99 -c 16384 --jinja
+    proxy: http://127.0.0.1:${PORT}
+    ttl: 120
+hooks:
+  on_startup:
+    preload:
+      - "qwen-4b-vl"
+routing:
+  router:
+    use: group
+    settings:
+      groups:
+        "gpu":
+          swap: true
+          exclusive: true
+          members:
+            - "qwen-4b-vl"
+            - "qwen-9b"
